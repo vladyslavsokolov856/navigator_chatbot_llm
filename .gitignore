@@ -28,9 +28,13 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
 
 # vercel
 .vercel
 
 #prompt file
 prompt.yaml
+
+#docker
+docker-entrypoint-initdb.d
