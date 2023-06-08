@@ -1,14 +1,14 @@
 import dbConnect  from "../../../utils/dbConnect.js";
-import User from "../../../models/UserSchema";
-import rateLimiter from "../../../utils/rateLimiter";
+import User from "../../../models/UserSchema.js";
+// import rateLimiter from "../../../utils/rateLimiter.js";
 
 async function handlePostRequest(req, res) {
   const { username, password, openAIAPIKey } = req.body;
-  try {
-    await rateLimiter(req, res);
-  } catch (err) {
-    return res.status(429).json({ error: "Too many requests" });
-  }
+  // try {
+  //   await rateLimiter(req, res);
+  // } catch (err) {
+  //   return res.status(429).json({ error: "Too many requests" });
+  // }
 
   const existingUser = await User.findOne({ username });
   if (existingUser) {
@@ -21,7 +21,12 @@ async function handlePostRequest(req, res) {
     apiKey: openAIAPIKey,
   });
 
-  await newUser.save();
+  try {
+
+    await newUser.save();
+  } catch(err) {
+    throw err;
+  }
 
   return res.status(201).json({
     user: {
@@ -39,12 +44,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed." });
   }
 
-  await dbConnect();
-
+  
   try {
+
+    await dbConnect();
     const result = await handlePostRequest(req, res);
     return result;
   } catch (error) {
+    console.log('error: ', error);
     return res.status(400).json({ error });
   }
 }
