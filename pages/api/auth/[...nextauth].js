@@ -1,10 +1,10 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import GoogleProvider from "next-auth/providers/google";
+// import GoogleProvider from "next-auth/providers/google";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import dbConnect from "../../../utils/dbConnect";
 import User from "../../../models/UserSchema";
-import bcrypt from "bcrypt";
+const bcrypt = require('bcryptjs');
 
 const events = {
   error: async (message, object) => {
@@ -13,12 +13,12 @@ const events = {
 };
 
 async function comparePasswords(password, hashedPassword) {
+  
   return await bcrypt.compare(password, hashedPassword);
 }
 
 async function validateUser(username, password) {
   const user = await User.findOne({ username });
-
   if (user && (await comparePasswords(password, user.password))) {
     return user;
   }
@@ -38,6 +38,7 @@ const clientPromise = (async () => {
 
 
 const authOptions = {
+  NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
   providers: [
     // GoogleProvider({
     //   clientId: process.env.GOOGLE_CLIENT_ID,
@@ -67,7 +68,7 @@ const authOptions = {
             id: user._id.toString(),
             username: user.username,
           };
-          return Promise.resolve(formattedUser);
+          return formattedUser;
         } else {
           return Promise.reject(new Error("Invalid username or password."));
         }
