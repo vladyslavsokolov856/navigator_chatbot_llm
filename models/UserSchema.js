@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcryptjs');
 const { encrypt } = require("../utils/crypto");
 
 const userSchema = new mongoose.Schema({
@@ -29,10 +29,11 @@ userSchema.pre("save", async function (next) {
   if (!this.isModified("password") && !this.isModified("apiKey")) {
     return next();
   }
+
   try {
     const salt = await bcrypt.genSalt(10);
     if (this.isModified("password")) {
-      this.password = await bcrypt.hash(this.password, salt);
+      this.password = bcrypt.hashSync(this.password, salt);
     }
     if (this.isModified("apiKey")) {
       this.apiKey = encrypt(this.apiKey);
