@@ -1,6 +1,4 @@
-# myChat: A ChatGPT Clone
-
-myChat is an open-source project modeled after ChatGPT. It provides a user-friendly interface for interacting with GPT-like LLMs. This project is NOT directly affiliated with OpenAI in any way.
+# Chat UI Prototype
 
 ## Table of Contents
 
@@ -58,27 +56,19 @@ Once you have a running Redis instance, you'll need to obtain the connection str
 
 ## Installation
 
-1. Clone this repository:
+1. Navigate to the project directory:
 
    ```
-   git clone https://github.com/your-username/myChat.git
+   cd gpt-ui
    ```
 
-   or get started using GitHub's template feature
-
-2. Navigate to the project directory:
-
-   ```
-   cd myChat
-   ```
-
-3. Install the dependencies:
+2. Install the dependencies:
 
    ```
    npm install
    ```
 
-4. Create a `.env.local` file in the project root and add the necessary environment variables:
+3. Create a `.env.local` file in the project root and add the necessary environment variables:
 
    ```
    touch .env.local
@@ -117,64 +107,3 @@ Replace `http://localhost:3000` with whatever port your application is running o
   ```
   npm run start
   ```
-
-## Deployment
-
-To deploy your myChat Clone to Vercel, follow these steps:
-
-1. Sign up for a [Vercel](https://vercel.com/) account if you haven't already.
-
-2. Install the Vercel CLI:
-
-   ```
-   npm install -g vercel
-   ```
-
-3. Log in to your Vercel account from the command line:
-
-   ```
-   vercel login
-   ```
-
-4. Navigate to your project directory:
-
-   ```
-   cd myChat
-   ```
-
-5. Run the following command to deploy your application:
-
-   ```
-   vercel --prod
-   ```
-
-6. During the deployment process, the Vercel CLI will ask you for the environment variables. Provide the same values you used for your `.env.local` file:
-
-   ```
-   NEXTAUTH_URL: https://your-vercel-url.vercel.app
-   MONGODB_URI: yourURI
-   NEXTAUTH_SECRET: yourSecret
-   ENCRYPTION_KEY: a 32-digit hexadecimal string for AES-128 encryption (for users' API key)
-   REDIS_URL=yourRedisConnectionString
-   ```
-
-Replace `http://localhost:3000` with whatever port your application is running on, `yourURI` with your MongoDB connection string, `yourSecret` with a secure random string, `your32HexDigitString` with a 32-digit hexadecimal string for AES-128 encryption, and `yourRedisConnectionString` with your Redis connection string.
-
-7. Once the deployment is complete, Vercel will provide you with a live URL to access your myChat Clone.
-
-Remember that every time you make changes to your myChat Clone and want to deploy the updated version, you can simply run `vercel --prod` from the project directory.
-
-## Contributing
-
-We welcome contributions! To contribute, please follow these steps:
-
-1. Fork this repository
-2. Clone your fork to your local machine: `git clone https://github.com/your-username/myChat.git`
-3. Create your feature branch: `git checkout -b feature/my-new-feature` or `git checkout -b fix/my-new-fix`
-4. Commit your changes: `git commit -am 'Add some feature'`
-5. Push to the branch: `git push origin feature/my-new-feature`
-6. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License.
