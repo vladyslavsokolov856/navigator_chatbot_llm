@@ -4,7 +4,7 @@ import { authOptions } from "../auth/[...nextauth]";
 import { getServerSession } from "next-auth/next";
 import { decrypt } from "../../../utils/crypto";
 import { Configuration, OpenAIApi } from "openai";
-import rateLimiter from "../../../utils/rateLimiter";
+// import rateLimiter from "../../../utils/rateLimiter";
 
 const fetchDataFromAPI = async (messages, apiKey) => {
   const configuration = new Configuration({
@@ -41,11 +41,12 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized" });
   }
   const userId = session.user.id;
-  try {
-    await rateLimiter(userId);
-  } catch (err) {
-    return res.status(429).json({ error: "Too many requests" });
-  }
+
+  // try {
+  //   await rateLimiter(userId);
+  // } catch (err) {
+  //   return res.status(429).json({ error: "Too many requests" });
+  // }
   try {
     const user = await User.findById(session.user.id);
     const { messages } = req.body;
