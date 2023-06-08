@@ -2,7 +2,7 @@ import dbConnect from "../../../utils/dbConnect";
 import { Chat } from "../../../models/ChatSchema";
 import { authOptions } from "../auth/[...nextauth]";
 import { getServerSession } from "next-auth/next";
-import rateLimiter from "../../../utils/rateLimiter";
+// import rateLimiter from "../../../utils/rateLimiter";
 
 async function handleGetRequest(req, res, userId) {
   const { fields } = req.query;
@@ -43,11 +43,11 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized" });
   }
   const userId = session.user.id;
-  try {
-    await rateLimiter(userId);
-  } catch (err) {
-    return res.status(429).json({ error: "Too many requests" });
-  }
+  // try {
+  //   await rateLimiter(userId);
+  // } catch (err) {
+  //   return res.status(429).json({ error: "Too many requests" });
+  // }
 
   try {
     switch (method) {
