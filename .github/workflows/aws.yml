@@ -94,7 +94,7 @@ jobs:
         # Build a docker container and
         # push it to ECR so that it can
         # be deployed to ECS.
-        docker tag nginx:$IMAGE_TAG $ECR_REGISTRY/nginx:$IMAGE_TAG
+        docker tag nginx:latest $ECR_REGISTRY/nginx:$IMAGE_TAG
         docker push $ECR_REGISTRY/nginx:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/nginx:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
@@ -107,7 +107,7 @@ jobs:
       run: |
         # Push container to ECR so that it can
         # be deployed to ECS.
-        docker tag next-js:$IMAGE_TAG $ECR_REGISTRY/next-js:$IMAGE_TAG
+        docker tag next-js:latest $ECR_REGISTRY/next-js:$IMAGE_TAG
         docker push $ECR_REGISTRY/next-js:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/next-js:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
@@ -119,7 +119,7 @@ jobs:
       run: |
         # Push container to ECR so that it can
         # be deployed to ECS.
-        docker tag mongo:$IMAGE_TAG $ECR_REGISTRY/mongo:$IMAGE_TAG
+        docker tag mongo:latest $ECR_REGISTRY/mongo:$IMAGE_TAG
         docker push $ECR_REGISTRY/mongo:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/mongo:$IMAGE_TAG" >> $GITHUB_OUTPUT
         
@@ -131,7 +131,7 @@ jobs:
       run: |
         # Push container to ECR so that it can
         # be deployed to ECS.
-        docker tag mongo-express:$IMAGE_TAG $ECR_REGISTRY/mongo-express:$IMAGE_TAG
+        docker tag mongo-express:latest $ECR_REGISTRY/mongo-express:$IMAGE_TAG
         docker push $ECR_REGISTRY/mongo-express:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/mongo-express:$IMAGE_TAG" >> $GITHUB_OUTPUT
         

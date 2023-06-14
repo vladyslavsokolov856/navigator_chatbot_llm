@@ -3,14 +3,14 @@ version: '3.1'
 
 services:
   nginx:
-    image: nginx:${IMAGE_TAG}
+    image: nginx
     depends_on:
       - next-js
     build:
       context: ./nginx
       dockerfile: Dockerfile
   mongo:
-    image: mongo:${IMAGE_TAG}
+    image: mongo
     restart: always
     ports:
       - 27017:27017
@@ -18,7 +18,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
   mongo-express:
-    image: mongo-express:${IMAGE_TAG}
+    image: mongo-express
     restart: always
     ports:
       - 8081:8081
@@ -29,7 +29,7 @@ services:
       ME_CONFIG_BASICAUTH_USERNAME: ${ME_CONFIG_BASICAUTH_USERNAME}
       ME_CONFIG_BASICAUTH_PASSWORD: ${ME_CONFIG_BASICAUTH_PASSWORD}
   next-js:
-    image: next-js:${IMAGE_TAG}
+    image: next-js
     ports:
      - 3000:3000
     environment:
