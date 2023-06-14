@@ -71,6 +71,7 @@ jobs:
       with:
         compose-file: "./docker-compose.yml"
       env:
+        IMAGE_TAG: ${{ github.sha }}
         NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
         MONGODB_URI: ${{ secrets.MONGODB_URI }}
         NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
