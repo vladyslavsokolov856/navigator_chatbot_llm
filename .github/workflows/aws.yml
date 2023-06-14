@@ -151,7 +151,7 @@ jobs:
       with:
         task-definition: ${{ steps.render-nginx-container.outputs.task-definition }}
         container-name: next-js
-        image: ${{ steps.build-next-js-image.outputs.image }
+        image: ${{ steps.build-next-js-image.outputs.image }}
         
     - name: Modify Amazon ECS task definition with third container
       id: render-mongo-container
@@ -159,7 +159,7 @@ jobs:
       with:
         task-definition: ${{ steps.render-next-js-container.outputs.task-definition }}
         container-name: mongo
-        image: ${{ steps.build-mongo-image.outputs.image }
+        image: ${{ steps.build-mongo-image.outputs.image }}
         
     - name: Modify Amazon ECS task definition with fourth container
       id: render-mongo-express-container
@@ -167,7 +167,7 @@ jobs:
       with:
         task-definition: ${{ steps.render-mongo-container.outputs.task-definition }}
         container-name: mongo-express
-        image: ${{ steps.build-mongo-express-image.outputs.image }
+        image: ${{ steps.build-mongo-express-image.outputs.image }}
 
     - name: Deploy to Amazon ECS service
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
