@@ -1,0 +1,178 @@
+# This workflow will build and push a new container image to Amazon ECR,
+# and then will deploy a new task definition to Amazon ECS, when there is a push to the "main" branch.
+#
+# To use this workflow, you will need to complete the following set-up steps:
+#
+# 1. Create an ECR repository to store your images.
+#    For example: `aws ecr create-repository --repository-name my-ecr-repo --region us-east-2`.
+#    Replace the value of the `ECR_REPOSITORY` environment variable in the workflow below with your repository's name.
+#    Replace the value of the `AWS_REGION` environment variable in the workflow below with your repository's region.
+#
+# 2. Create an ECS task definition, an ECS cluster, and an ECS service.
+#    For example, follow the Getting Started guide on the ECS console:
+#      https://us-east-2.console.aws.amazon.com/ecs/home?region=us-east-2#/firstRun
+#    Replace the value of the `ECS_SERVICE` environment variable in the workflow below with the name you set for the Amazon ECS service.
+#    Replace the value of the `ECS_CLUSTER` environment variable in the workflow below with the name you set for the cluster.
+#
+# 3. Store your ECS task definition as a JSON file in your repository.
+#    The format should follow the output of `aws ecs register-task-definition --generate-cli-skeleton`.
+#    Replace the value of the `ECS_TASK_DEFINITION` environment variable in the workflow below with the path to the JSON file.
+#    Replace the value of the `CONTAINER_NAME` environment variable in the workflow below with the name of the container
+#    in the `containerDefinitions` section of the task definition.
+#
+# 4. Store an IAM user access key in GitHub Actions secrets named `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
+#    See the documentation for each action used below for the recommended IAM policies for this IAM user,
+#    and best practices on handling the access key credentials.
+
+name: Deploy to Amazon ECS
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  AWS_REGION: us-east-1                   # set this to your preferred AWS region, e.g. us-west-1
+#   ECR_REPOSITORY: MY_ECR_REPOSITORY           # set this to your Amazon ECR repository name
+  ECS_SERVICE: alithias-service                 # set this to your Amazon ECS service name
+  ECS_CLUSTER: alithias-cluster                # set this to your Amazon ECS cluster name
+  ECS_TASK_DEFINITION: .aws/task-definition.json # set this to the path to your Amazon ECS task definition
+                                               # file, e.g. .aws/task-definition.json
+#   CONTAINER_NAME: MY_CONTAINER_NAME           # set this to the name of the container in the
+                                               # containerDefinitions section of your task definition
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+      
+    - name: Docker Compose Build
+      id: docker-compose-actions-workflow
+#       run: docker-compose up -d
+      uses: isbang/compose-action@v1.4.1
+      with:
+        compose-file: "./docker-compose.yml"
+      env:
+        NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+        MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+        ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+        ME_CONFIG_MONGODB_ADMINUSERNAME: ${{ secrets.ME_CONFIG_MONGODB_ADMINUSERNAME }}
+        ME_CONFIG_MONGODB_ADMINPASSWORD: ${{ secrets.ME_CONFIG_MONGODB_ADMINPASSWORD }}
+        ME_CONFIG_MONGODB_URL: ${{ secrets.ME_CONFIG_MONGODB_URL }}
+        MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
+        MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+        ME_CONFIG_BASICAUTH_USERNAME: ${{ secrets.ME_CONFIG_BASICAUTH_USERNAME }}
+        ME_CONFIG_BASICAUTH_PASSWORD: ${{ secrets.ME_CONFIG_BASICAUTH_PASSWORD }}
+        
+
+    - name: Tag and push nginx image to Amazon ECR
+      id: build-nginx-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        # Build a docker container and
+        # push it to ECR so that it can
+        # be deployed to ECS.
+        docker tag nginx:$IMAGE_TAG $ECR_REGISTRY/nginx:$IMAGE_TAG
+        docker push $ECR_REGISTRY/nginx:$IMAGE_TAG
+        echo "image=$ECR_REGISTRY/nginx:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+
+    - name: Tag and push next-js image to Amazon ECR
+      id: build-next-js-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        # Push container to ECR so that it can
+        # be deployed to ECS.
+        docker tag next-js:$IMAGE_TAG $ECR_REGISTRY/next-js:$IMAGE_TAG
+        docker push $ECR_REGISTRY/next-js:$IMAGE_TAG
+        echo "image=$ECR_REGISTRY/next-js:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+    - name: Tag and push mongo image to Amazon ECR
+      id: build-mongo-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        # Push container to ECR so that it can
+        # be deployed to ECS.
+        docker tag mongo:$IMAGE_TAG $ECR_REGISTRY/mongo:$IMAGE_TAG
+        docker push $ECR_REGISTRY/mongo:$IMAGE_TAG
+        echo "image=$ECR_REGISTRY/mongo:$IMAGE_TAG" >> $GITHUB_OUTPUT
+        
+    - name: Tag and push mongo-express image to Amazon ECR
+      id: build-mongo-express-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        # Push container to ECR so that it can
+        # be deployed to ECS.
+        docker tag mongo-express:$IMAGE_TAG $ECR_REGISTRY/mongo-express:$IMAGE_TAG
+        docker push $ECR_REGISTRY/mongo-express:$IMAGE_TAG
+        echo "image=$ECR_REGISTRY/mongo-express:$IMAGE_TAG" >> $GITHUB_OUTPUT
+        
+    - name: Render Amazon ECS task definition for first container
+      id: render-nginx-container
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: ${{ env.ECS_TASK_DEFINITION }}
+        container-name: nginx
+        image: ${{ steps.build-nginx-image.outputs.image }
+        environment-variables: |
+            LOG_LEVEL=info
+            ENVIRONMENT=prod
+
+    - name: Modify Amazon ECS task definition with second container
+      id: render-next-js-container
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: ${{ steps.render-nginx-container.outputs.task-definition }}
+        container-name: next-js
+        image: ${{ steps.build-next-js-image.outputs.image }
+        
+    - name: Modify Amazon ECS task definition with third container
+      id: render-mongo-container
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: ${{ steps.render-next-js-container.outputs.task-definition }}
+        container-name: mongo
+        image: ${{ steps.build-mongo-image.outputs.image }
+        
+    - name: Modify Amazon ECS task definition with fourth container
+      id: render-mongo-express-container
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: ${{ steps.render-mongo-container.outputs.task-definition }}
+        container-name: mongo-express
+        image: ${{ steps.build-mongo-express-image.outputs.image }
+
+    - name: Deploy to Amazon ECS service
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.render-mongo-express-container.outputs.task-definition }}
+        service: ${{ env.ECS_SERVICE }}
+        cluster: ${{ env.ECS_CLUSTER }}
+        wait-for-service-stability: true
