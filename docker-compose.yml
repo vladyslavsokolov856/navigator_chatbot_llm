@@ -2,6 +2,13 @@
 version: '3.1'
 
 services:
+  nginx:
+    image: nginx
+    depends_on:
+      - next-js
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
   mongo:
     image: mongo
     restart: always
@@ -10,7 +17,6 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-
   mongo-express:
     image: mongo-express
     restart: always
