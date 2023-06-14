@@ -140,7 +140,7 @@ jobs:
       with:
         task-definition: ${{ env.ECS_TASK_DEFINITION }}
         container-name: nginx
-        image: ${{ steps.build-nginx-image.outputs.image }
+        image: ${{ steps.build-nginx-image.outputs.image }}
         environment-variables: |
             LOG_LEVEL=info
             ENVIRONMENT=prod
