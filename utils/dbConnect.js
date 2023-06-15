@@ -5,10 +5,15 @@ const dbConnect = async () => {
     return mongoose;
   }
 
-  return mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  try {
+    const mongoConnection = mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    return mongoConnection;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export default dbConnect;
