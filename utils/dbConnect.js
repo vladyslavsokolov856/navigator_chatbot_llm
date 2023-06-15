@@ -4,11 +4,14 @@ const dbConnect = async () => {
   if (mongoose.connection.readyState !== 0) {
     return mongoose;
   }
-
-  return mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  try {
+    return mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+  } catch (error) {
+    throw error;
+  }
 };
 
 export default dbConnect;
